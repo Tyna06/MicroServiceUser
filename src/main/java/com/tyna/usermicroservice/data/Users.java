@@ -10,7 +10,7 @@ public class Users {
 
     @JsonProperty("birthDate")
     private LocalDate birthDate;
-    public Users() {} // ⚠️ Nécessaire pour que Spring Boot puisse créer l'objet via JSON
+    public Users() {} //  Necessary for Spring Boot to create the object via JSON
 
     public Users(String name, String email, LocalDate birthDate) {
         this.name = name;
@@ -26,7 +26,7 @@ public class Users {
     public void setEmail(String email){ this.email = email; }
     public void setBirthDate(LocalDate birthDate){ this.birthDate = birthDate; }
 
-    // 🟢 Calcul automatique de l'âge basé sur la date de naissance
+    // Automatic age calculation based on date of birth
     public int getAge() {
         return Period.between(this.birthDate, LocalDate.now()).getYears();
     }

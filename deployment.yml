@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: usermicroservice
+    version: "1.0"
+  name: usermicroservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: usermicroservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: usermicroservice
+    spec:
+      containers:
+        - name: usermicroservice
+          image: tynaz02/usermicroservice:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: usermicroservice
+  name: usermicroservice
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+      name: http
+  selector:
+    app: usermicroservice
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: microservice-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: usermicroservice
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - microservice-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /usermicroservice/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            port:
+              number: 80
+            host: usermicroservice.default.svc.cluster.local
